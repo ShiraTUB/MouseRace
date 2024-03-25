@@ -85,12 +85,13 @@ function insertObjects(numberOfElement: number) {
             case 0: // Collect
                 let boxElement = new CollectElement(game)
                 let changeElement = new ChangeElement(game)
-                boxElement.add(changeElement)
+                boxElement.mesh.add(changeElement.mesh)
                 boxElement.child = changeElement
                 boxElement.mesh.position.copy(randomPosition)
-                changeElement.mesh.position.copy(randomPosition)
-                changeElement.position.z = boxElement.position.z + 1
+                changeElement.position.z += 2
+
                 scene.add(boxElement)
+                scene.add(changeElement)
 
                 break
             case 1: // Avoid
@@ -119,6 +120,9 @@ function animate() {
     animationFrameId = requestAnimationFrame(animate)
     scene.traverse((obj: any) => {
         if (obj.render) obj.render()
+        if (obj instanceof CollectElement){
+            obj.child.render
+        }
     })
 
     // Update timer display with clock's elapsed time

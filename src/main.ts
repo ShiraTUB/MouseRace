@@ -2,19 +2,22 @@ import * as THREE from 'three'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import {AvoidElement, ChangeElement, CollectElement, Element, Game} from "./gameUtils"
 
-
 let camera: THREE.PerspectiveCamera
 let renderer: THREE.WebGLRenderer
 let scene: THREE.Scene
 let controls: OrbitControls
 
 const raycaster = new THREE.Raycaster()
-raycaster.params.Mesh.threshold = 0.0001
+// raycaster.params.Mesh.threshold = 0.0001
 
 const mouse = new THREE.Vector2()
 const timerElement = document.getElementById("timer")
+// const timerDivHeight = timerElement!.clientHeight
 let animationFrameId: number | null = null // Store the current animation frame ID
 let game: Game
+
+// const availableHeight = window.innerHeight - timerDivHeight
+
 
 function onMouseClick(event: MouseEvent): void {
 
@@ -42,9 +45,9 @@ function onMouseClick(event: MouseEvent): void {
 }
 
 function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight
+    camera.aspect = window.innerWidth/ window.innerHeight
     camera.updateProjectionMatrix()
-    renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.setSize(window.innerWidth , window.innerHeight)
 }
 
 function initGame() {
@@ -131,10 +134,15 @@ function main() {
 
     scene = new THREE.Scene()
 
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+
 
     renderer = new THREE.WebGLRenderer()
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+
     renderer.setSize(window.innerWidth, window.innerHeight)
+
+    //renderer.setSize(canvas.clientWidth, canvas.clientHeight)
+
     document.body.appendChild(renderer.domElement)
 
     controls = new OrbitControls(camera, renderer.domElement)

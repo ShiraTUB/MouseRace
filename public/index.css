@@ -5,6 +5,9 @@
 }
 canvas{
   display: block;
+  position: fixed;
+  top: 0;
+  right: 0;
 }
 body{
   width: 100vw;
@@ -35,6 +38,7 @@ body .window{
   display: none;
   padding: 10px 20px;
   font-size: 24px;
+  z-index: 5
 }
 
 #wonButton {
@@ -45,10 +49,11 @@ body .window{
   display: none;
   padding: 10px 20px;
   font-size: 24px;
+  z-index: 5
 }
 
 #timer{
-  z-index: 1;
+  z-index: 10;
   color: white;
   font-size: 32px;
 }

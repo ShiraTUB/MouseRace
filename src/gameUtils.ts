@@ -14,16 +14,44 @@ export class Game {
     lost: boolean = false
     scene: THREE.Scene
     numberOfElement: number
+    boxGeometry: THREE.BoxGeometry
+    sphereGeometry: THREE.SphereGeometry
+    cylinderGeometry: THREE.CylinderGeometry
+
+    collectMaterial: THREE.MeshBasicMaterial
+    avoidMaterial: THREE.MeshBasicMaterial
+
 
     constructor(elementsNum: number, scene: THREE.Scene) {
         this.timer = new THREE.Clock
         this.scene = scene
         this.numberOfElement = elementsNum
+
+        // geometries and materials
+        this.boxGeometry = new THREE.BoxGeometry(1, 1, 1)
+        this.sphereGeometry = new THREE.SphereGeometry(1, 50, 50)
+        this.cylinderGeometry = new THREE.CylinderGeometry(0, 1, 1, 4, 4)
+
+        this.collectMaterial = new THREE.MeshBasicMaterial({color: new THREE.Color('red')})
+        this.avoidMaterial = new THREE.MeshBasicMaterial({color: new THREE.Color('green')})
     }
 
     end() {
         // Delete all the meshes in the scene and remove the elements
+        // scene.traverse
+        // this.scene.traverse((child: any) =>{
+        //     if (child instanceof Element){
+        //         child.delete()
+        //     }
+        // })
         while (this.scene.children.length > 0) {
+            this.avoidMaterial.dispose()
+            this.collectMaterial.dispose()
+
+            this.boxGeometry.dispose()
+            this.cylinderGeometry.dispose()
+            this.sphereGeometry.dispose()
+
             const element_to_delete = this.scene.children[0]
             if (element_to_delete instanceof Element){
                 element_to_delete.delete()
@@ -68,19 +96,18 @@ export class Element extends THREE.Object3D {
     }
 
     delete(): void {
-        (this.mesh.material as THREE.MeshBasicMaterial).dispose()
-        this.mesh.geometry.dispose()
         this.game.scene.remove(this)
     }
 }
 
 export class CollectElement extends Element {
     constructor(game: Game) {
+
         // create a mesh of random size
-        const randomSize = Math.random() * 0.5 + 0.4
-        const geometry = new THREE.BoxGeometry(randomSize, randomSize, randomSize)
-        const material = new THREE.MeshBasicMaterial({color: new THREE.Color('red')})
-        const box = new THREE.Mesh(geometry, material)
+        const randomSize = Math.random() + 0.2
+        let box = new THREE.Mesh(game.boxGeometry, game.collectMaterial)
+        box.scale.set(randomSize, randomSize, randomSize)
+
         super(box, ElementType.Collect, game)
         this.update()
     }
@@ -139,16 +166,15 @@ export class CollectElement extends Element {
     }
 
     onClicked(): void {
-        this.delete()
+        this.game.scene.remove(this)
     }
 }
 
 export class AvoidElement extends Element {
     constructor(game: Game) {
-        const randomSize = Math.random() * 0.5 + 0.2
-        const geometry = new THREE.SphereGeometry(randomSize, 50, 50)
-        const material = new THREE.MeshBasicMaterial({color: new THREE.Color('green')})
-        const sphere = new THREE.Mesh(geometry, material)
+        const randomSize = Math.random() + 0.2
+        const sphere = new THREE.Mesh(game.sphereGeometry, game.avoidMaterial)
+        sphere.scale.set(randomSize, randomSize, randomSize)
         super(sphere, ElementType.Avoid, game)
         this.update()
     }
@@ -185,13 +211,12 @@ export class AvoidElement extends Element {
 
 export class ChangeElement extends Element {
     constructor(game: Game) {
-        const randomSize = Math.random() * 0.5 + 0.4
-        const geometry = new THREE.CylinderGeometry(0, randomSize, randomSize, 4, 4)
+        const randomSize = Math.random() + 0.2
 
         const type = Math.round(Math.random()) // chose a type randomly; 0 -> collect, 1 -> avoid
-        const color = type == 0 ? 'red' : 'green'
-        const material = new THREE.MeshBasicMaterial({color: new THREE.Color(color)})
-        const pyramid = new THREE.Mesh(geometry, material)
+        const material = type == 0 ? game.collectMaterial : game.avoidMaterial
+        const pyramid = new THREE.Mesh(game.cylinderGeometry, material)
+        pyramid.scale.set(randomSize, randomSize, randomSize)
         super(pyramid, type, game)
         this.update()
 
@@ -202,10 +227,10 @@ export class ChangeElement extends Element {
             // Every few seconds, change the type and color respectively
             if (this.elementType == ElementType.Collect) {
                 this.elementType = ElementType.Avoid
-                this.mesh.material = new THREE.MeshBasicMaterial({color: new THREE.Color('green')})
+                this.mesh.material = this.game.avoidMaterial
             } else {
                 this.elementType = ElementType.Collect
-                this.mesh.material = new THREE.MeshBasicMaterial({color: new THREE.Color('red')})
+                this.mesh.material = this.game.collectMaterial
             }
         }, 4000)
     }
@@ -218,7 +243,7 @@ export class ChangeElement extends Element {
     onClicked(): void {
         // When a collect elements is clicked, remove is from the scene
         if (this.elementType === ElementType.Collect) {
-            this.delete()
+            this.game.scene.remove(this)
         } else {
             this.game.lost = true
             this.game.end()

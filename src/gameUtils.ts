@@ -101,6 +101,8 @@ export class Element extends THREE.Object3D {
 }
 
 export class CollectElement extends Element {
+
+    child: any
     constructor(game: Game) {
 
         // create a mesh of random size
@@ -135,31 +137,37 @@ export class CollectElement extends Element {
             case 'up':
                 if (this.mesh.position.y < maxY) {
                     this.mesh.position.y += 0.01
+                    this.child.mesh.position.y += 0.1
                 }
                 break
             case 'down':
                 if (this.mesh.position.y > minY) {
                     this.mesh.position.y -= 0.01
+                    this.child.mesh.position.y -= 0.1
                 }
                 break
             case 'left':
                 if (this.mesh.position.x < maxX) {
                     this.mesh.position.x += 0.01
+                    this.child.mesh.position.x += 0.1
                 }
                 break
             case 'right':
                 if (this.mesh.position.x > minX) {
                     this.mesh.position.x -= 0.01
+                    this.child.mesh.position.x -= 0.1
                 }
                 break
             case 'forward':
                 if (this.mesh.position.z < maxZ) {
                     this.mesh.position.z += 0.01
+                    this.child.mesh.position.z += 0.1
                 }
                 break
             case 'backward':
                 if (this.mesh.position.z > minZ) {
                     this.mesh.position.z -= 0.01
+                    this.child.mesh.position.z -= 0.1
                 }
                 break
         }
@@ -237,7 +245,7 @@ export class ChangeElement extends Element {
 
     render(): void {
         // Rotate the pyramid clockwise
-        this.mesh.rotation.z -= (Math.PI / 180)
+        // this.mesh.rotation.z -= (Math.PI / 180)
     }
 
     onClicked(): void {

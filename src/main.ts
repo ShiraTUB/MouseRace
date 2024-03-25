@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
-import {AvoidElement, ChangeElement, CollectElement, Element, Game} from "./gameUtils"
+import {AvoidElement, ChangeElement, CollectElement, Game} from "./gameUtils"
 
 let camera: THREE.PerspectiveCamera
 let renderer: THREE.WebGLRenderer
@@ -11,8 +11,8 @@ const raycaster = new THREE.Raycaster()
 // raycaster.params.Mesh.threshold = 0.0001
 
 const mouse = new THREE.Vector2()
-const timerElement = document.getElementById("timer")
-// const timerDivHeight = timerElement!.clientHeight
+const timerElement: any = document.getElementById("timer")
+const canvas: any = document.getElementById('myCanvas')
 let animationFrameId: number | null = null // Store the current animation frame ID
 let game: Game
 
@@ -77,24 +77,28 @@ function insertObjects(numberOfElement: number) {
     for (let i = 0; i < numberOfElement; i++) {
 
         // Randomly choose an element type
-        const randomType = Math.floor(Math.random() * 3) // 0 -> Collect, 1 -> Avoid, 3 -> Change
-        let newElement: Element
+        const randomType = Math.floor(Math.random() * 2) // 0 -> Collect, 1 -> Avoid
+        const randomPosition = generateRandomPosition()
+
 
         switch (randomType) {
             case 0: // Collect
-                newElement = new CollectElement(game)
+                let boxElement = new CollectElement(game)
+                let changeElement = new ChangeElement(game)
+                boxElement.add(changeElement)
+                boxElement.child = changeElement
+                boxElement.mesh.position.copy(randomPosition)
+                changeElement.mesh.position.copy(randomPosition)
+                changeElement.position.z = boxElement.position.z + 1
+                scene.add(boxElement)
+
                 break
             case 1: // Avoid
-                newElement = new AvoidElement(game)
-                break
-            case 2: // Change
-                newElement = new ChangeElement(game)
+                const avoidElement = new AvoidElement(game)
+                avoidElement.mesh.position.copy(randomPosition)
+                scene.add(avoidElement)
                 break
         }
-
-        // Randomly position the new element in the scene
-        newElement!.mesh.position.copy(generateRandomPosition())
-        scene.add(newElement!)
     }
 }
 
@@ -136,7 +140,7 @@ function main() {
 
 
 
-    renderer = new THREE.WebGLRenderer()
+    renderer = new THREE.WebGLRenderer({ canvas: canvas })
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
 
     renderer.setSize(window.innerWidth, window.innerHeight)
